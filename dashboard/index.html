@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIGIL</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>VIGIL</h1>
+    <span id="connection-status" class="status status--offline">deconnecte</span>
+  </header>
+
+  <div id="status-banner" class="status-banner status-banner--idle">
+    <span id="status-banner-text">SECTEUR SURVEILLE - RAS</span>
+  </div>
+
+  <main class="layout">
+    <div class="main-row">
+      <section class="video-panel">
+        <img id="video-feed" src="/video_feed" alt="Flux camera VIGIL" />
+      </section>
+
+      <section class="radar-panel">
+        <h2>Radar</h2>
+        <svg id="radar" viewBox="0 0 200 200" class="radar">
+          <circle class="radar-ring" cx="100" cy="100" r="90" />
+          <circle class="radar-ring" cx="100" cy="100" r="60" />
+          <circle class="radar-ring" cx="100" cy="100" r="30" />
+          <line class="radar-axis" x1="100" y1="10" x2="100" y2="190" />
+          <line class="radar-axis" x1="10" y1="100" x2="190" y2="100" />
+          <g class="radar-sweep-group">
+            <line class="radar-sweep" x1="100" y1="100" x2="100" y2="10" />
+          </g>
+          <polygon class="radar-ship" points="100,90 94,110 106,110" />
+          <g id="radar-blips"></g>
+        </svg>
+        <p class="radar-note">Distance approximative (taille apparente)</p>
+      </section>
+    </div>
+
+    <section class="history-panel">
+      <h2>Historique des detections</h2>
+      <ul id="detection-list" class="detection-list"></ul>
+    </section>
+  </main>
+
+  <footer class="bottombar">
+    <span>Detections aujourd'hui : <strong id="today-count">0</strong></span>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

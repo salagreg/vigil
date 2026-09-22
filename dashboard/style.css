@@ -1,0 +1,258 @@
+:root {
+  --bg: #0b0f14;
+  --panel: #131a22;
+  --border: #223140;
+  --text: #e5edf3;
+  --muted: #7f93a3;
+  --accent: #3ddc84;
+  --danger: #ff5c5c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* la page ne doit jamais scroller : chaque zone gere son propre debordement */
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  flex: 0 0 auto;
+}
+
+.topbar h1 {
+  margin: 0;
+  letter-spacing: 0.2em;
+  font-size: 1.3rem;
+}
+
+.status {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.status--online {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.status--offline {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* Bandeau d'etat : le premier truc que le pilote doit voir, avant meme la video */
+.status-banner {
+  flex: 0 0 auto;
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.status-banner--idle {
+  background: #0f1a14;
+  color: var(--accent);
+}
+
+.status-banner--alert {
+  background: #2a1010;
+  color: var(--danger);
+}
+
+.layout {
+  flex: 1;
+  min-height: 0; /* indispensable pour que les enfants puissent scroller au lieu de pousser la page */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  min-width: 0;
+}
+
+.main-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.video-panel {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.video-panel img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.radar-panel {
+  flex: 0 0 260px;
+  min-height: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.radar-panel h2 {
+  align-self: flex-start;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  flex: 0 0 auto;
+}
+
+.radar {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.radar-note {
+  margin: 0.4rem 0 0 0;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.radar-ring {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.radar-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.radar-ship {
+  fill: var(--accent);
+}
+
+.radar-sweep-group {
+  transform-origin: 100px 100px;
+  animation: radar-spin 4s linear infinite;
+}
+
+.radar-sweep {
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.5;
+}
+
+@keyframes radar-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.radar-blip circle {
+  fill: var(--danger);
+}
+
+.radar-blip text {
+  fill: var(--text);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.history-panel {
+  flex: 0 0 auto;
+  height: 200px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.history-panel h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  flex: 0 0 auto;
+}
+
+.detection-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto; /* seule cette liste defile, jamais la page entiere */
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.detection-list li {
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.detection-list .label {
+  font-weight: 600;
+}
+
+.detection-list .meta {
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.bottombar {
+  flex: 0 0 auto;
+  padding: 0.6rem 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
