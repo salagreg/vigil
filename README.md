@@ -26,6 +26,8 @@ Vocabulaire détecté par défaut : `stone, pebble, grey rock, small rock, piece
 
 Chaque objet détecté reçoit un identifiant unique (`Rocher #1`, `#2`, ...) et une zone (`GAUCHE`, `DROITE`, `HAUT`, `BAS`, `CENTRE`...) : une alerte n'est déclenchée qu'à la première apparition d'un objet, pas en boucle tant qu'il reste dans le champ. Le radar du dashboard affiche sa position en temps réel (distance approximative basée sur la taille apparente, pas une mesure physique).
 
+Chaque détection confirmée est enregistrée en base avec une miniature de l'image annotée (`snapshots/`, affichée dans l'historique) et, une fois l'objet sorti du champ, sa durée totale de présence.
+
 ## Test
 
 1. Ouvrir [http://localhost:8000](http://localhost:8000)

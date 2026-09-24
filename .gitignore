@@ -6,3 +6,4 @@ api/vigil.db-wal
 api/vigil.db-shm
 logs/*.log
 *.pt
+snapshots/*.jpg

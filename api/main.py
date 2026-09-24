@@ -15,11 +15,15 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 from detector import Detector
-from . import db
+from . import cloud_client, db
 
 app = FastAPI(title="VIGIL")
 
-detector = Detector()
+# imgsz abaisse de 640 (defaut) a 416 : inference plus rapide, donc le cadre
+# de detection colle mieux a un rocher qu'on deplace vite. Le flux camera
+# lui-meme reste fluide quoi qu'il arrive (thread de capture separe) ; c'est
+# la frequence de mise a jour du cadre qui depend de la vitesse d'inference.
+detector = Detector(imgsz=416)
 _main_loop = None
 _ws_clients = set()
 
@@ -32,7 +36,14 @@ def _on_detection(detection):
     """Appele depuis le thread du detecteur : ecrit en base puis
     planifie la diffusion websocket sur la boucle asyncio principale."""
     db.insert_event(
-        detection.ts, detection.label, detection.confidence, detection.source, detection.object_id, detection.zone
+        detection.ts,
+        detection.label,
+        detection.confidence,
+        detection.source,
+        detection.object_id,
+        detection.zone,
+        detection.snapshot,
+        detection.level,
     )
 
     message = json.dumps(
@@ -44,10 +55,23 @@ def _on_detection(detection):
             "source": detection.source,
             "object_id": detection.object_id,
             "zone": detection.zone,
+            "snapshot": detection.snapshot,
+            "level": detection.level,
         }
     )
     if _main_loop is not None:
         asyncio.run_coroutine_threadsafe(_broadcast(message), _main_loop)
+        # Tentative de synchronisation immediate (en plus de la boucle
+        # periodique) pour que la demo reste reactive : sans effet si le
+        # cloud est coupe ou desactive, l'evenement reste "non synchronise".
+        asyncio.run_coroutine_threadsafe(cloud_client.sync_once(), _main_loop)
+
+
+def _on_disappearance(object_id, duration_seconds):
+    """Appele depuis le thread du detecteur quand un objet confirme quitte
+    durablement le champ : complete son entree en base avec la duree totale
+    de presence."""
+    db.update_duration(object_id, duration_seconds)
 
 
 async def _broadcast(message):
@@ -79,15 +103,28 @@ async def _radar_loop():
         await _broadcast(message)
 
 
+async def _cloud_status_loop():
+    """Diffuse l'etat du cloud simule (joignable / mode autonome) toutes
+    les secondes, pour que la pastille du dashboard reste a jour en temps
+    reel sans que le pilote ait besoin de recharger la page."""
+    while True:
+        await asyncio.sleep(1)
+        message = json.dumps({"type": "cloud_status", **cloud_client.status()})
+        await _broadcast(message)
+
+
 @app.on_event("startup")
 async def on_startup():
     global _main_loop
     _main_loop = asyncio.get_event_loop()
     db.init_db()
     detector.add_listener(_on_detection)
+    detector.add_disappearance_listener(_on_disappearance)
     detector.start()
     asyncio.create_task(_heartbeat_loop())
     asyncio.create_task(_radar_loop())
+    asyncio.create_task(_cloud_status_loop())
+    asyncio.create_task(cloud_client.sync_loop())
 
 
 @app.on_event("shutdown")
@@ -98,6 +135,34 @@ async def on_shutdown():
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/cloud/status")
+async def cloud_status():
+    return cloud_client.status()
+
+
+@app.post("/cloud/toggle")
+async def cloud_toggle():
+    cloud_client.toggle()
+    return cloud_client.status()
+
+
+@app.get("/camera/status")
+async def camera_status():
+    return {"connected": detector.is_camera_connected()}
+
+
+@app.post("/camera/connect")
+async def camera_connect():
+    detector.connect_camera()
+    return {"connected": detector.is_camera_connected()}
+
+
+@app.post("/camera/disconnect")
+async def camera_disconnect():
+    detector.disconnect_camera()
+    return {"connected": detector.is_camera_connected()}
 
 
 @app.get("/events")
@@ -143,6 +208,10 @@ async def video_feed():
         media_type="multipart/x-mixed-replace; boundary=frame",
     )
 
+
+snapshots_dir = os.path.join(os.path.dirname(__file__), "..", "snapshots")
+os.makedirs(snapshots_dir, exist_ok=True)
+app.mount("/snapshots", StaticFiles(directory=snapshots_dir), name="snapshots")
 
 dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "dashboard")
 app.mount("/", StaticFiles(directory=dashboard_dir, html=True), name="dashboard")
