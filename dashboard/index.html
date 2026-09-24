@@ -9,7 +9,10 @@
 <body>
   <header class="topbar">
     <h1>VIGIL</h1>
-    <span id="connection-status" class="status status--offline">deconnecte</span>
+    <div class="topbar-right">
+      <button id="cloud-toggle" class="cloud-pill">...</button>
+      <button id="camera-toggle" class="camera-toggle">...</button>
+    </div>
   </header>
 
   <div id="status-banner" class="status-banner status-banner--idle">
@@ -25,6 +28,7 @@
       <section class="radar-panel">
         <h2>Radar</h2>
         <svg id="radar" viewBox="0 0 200 200" class="radar">
+          <defs id="radar-defs"></defs>
           <circle class="radar-ring" cx="100" cy="100" r="90" />
           <circle class="radar-ring" cx="100" cy="100" r="60" />
           <circle class="radar-ring" cx="100" cy="100" r="30" />
@@ -41,7 +45,21 @@
     </div>
 
     <section class="history-panel">
-      <h2>Historique des detections</h2>
+      <div class="history-header">
+        <h2>Historique des detections</h2>
+        <div class="history-filters" id="history-filters">
+          <button class="filter-btn active" data-range="all">Tout</button>
+          <button class="filter-btn" data-range="1h">1h</button>
+          <button class="filter-btn" data-range="24h">24h</button>
+        </div>
+      </div>
+      <div class="history-header">
+        <p class="history-count" id="history-count"></p>
+        <div class="history-sort" id="history-sort">
+          <button class="filter-btn active" data-sort="time">Heure</button>
+          <button class="filter-btn" data-sort="level">Criticite</button>
+        </div>
+      </div>
       <ul id="detection-list" class="detection-list"></ul>
     </section>
   </main>

@@ -6,6 +6,9 @@
   --muted: #7f93a3;
   --accent: #3ddc84;
   --danger: #ff5c5c;
+  --warn: #ffb84d;
+  --caution: #f4d35e;
+  --calm: #6ea8fe;
 }
 
 * {
@@ -41,21 +44,73 @@ body {
   font-size: 1.3rem;
 }
 
-.status {
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.camera-toggle {
+  font-family: inherit;
   font-size: 0.85rem;
-  padding: 0.25rem 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid var(--border);
-}
-
-.status--online {
+  border: 1px solid var(--accent);
+  background: transparent;
   color: var(--accent);
-  border-color: var(--accent);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.status--offline {
-  color: var(--danger);
+.camera-toggle:hover {
+  background: var(--accent);
+  color: #05130c;
+}
+
+.camera-toggle.camera-toggle--off {
   border-color: var(--danger);
+  color: var(--danger);
+}
+
+.camera-toggle.camera-toggle--off:hover {
+  background: var(--danger);
+  color: #1a0505;
+}
+
+.cloud-pill {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.cloud-pill:hover {
+  background: var(--accent);
+  color: #05130c;
+}
+
+.cloud-pill.cloud-pill--autonomous {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.cloud-pill.cloud-pill--autonomous:hover {
+  background: var(--danger);
+  color: #1a0505;
+}
+
+.camera-toggle:disabled,
+.cloud-pill:disabled {
+  opacity: 0.5;
+  cursor: default;
+  background: transparent;
 }
 
 /* Bandeau d'etat : le premier truc que le pilote doit voir, avant meme la video */
@@ -77,6 +132,7 @@ body {
 .status-banner--alert {
   background: #2a1010;
   color: var(--danger);
+  border-bottom: 3px solid var(--danger);
 }
 
 .layout {
@@ -186,18 +242,20 @@ body {
 }
 
 .radar-blip circle {
-  fill: var(--danger);
+  stroke: var(--bg);
+  stroke-width: 1;
 }
 
 .radar-blip text {
   fill: var(--text);
   font-size: 10px;
+  font-weight: 600;
   text-anchor: middle;
 }
 
 .history-panel {
   flex: 0 0 auto;
-  height: 200px;
+  height: 240px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -207,13 +265,87 @@ body {
   min-height: 0;
 }
 
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+}
+
 .history-panel h2 {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   flex: 0 0 auto;
+}
+
+.history-filters {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.filter-btn {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #05130c;
+}
+
+.history-count {
+  margin: 0.35rem 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+.history-sort {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.level-badge {
+  flex: 0 0 auto;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+  color: #05130c;
+}
+
+.level-badge--critique {
+  background: var(--danger);
+}
+
+.level-badge--haut {
+  background: var(--warn);
+}
+
+.level-badge--moyen {
+  background: var(--caution);
+}
+
+.level-badge--bas {
+  background: var(--calm);
 }
 
 .detection-list {
@@ -229,24 +361,44 @@ body {
 }
 
 .detection-list li {
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.4rem 0.75rem;
   font-size: 0.85rem;
   display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.6rem;
   flex: 0 0 auto;
+}
+
+.detection-list .swatch {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.detection-list .thumb {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  border: 2px solid var(--border);
+  object-fit: cover;
+  background: var(--bg);
 }
 
 .detection-list .label {
   font-weight: 600;
+  flex: 1;
+  min-width: 0;
 }
 
 .detection-list .meta {
   color: var(--muted);
   font-size: 0.78rem;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .bottombar {
